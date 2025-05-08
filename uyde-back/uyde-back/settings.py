@@ -44,12 +44,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'registration',
     'rest_framework',
     'corsheaders',
+    'django_extensions',
     'rest_framework.authtoken',
     'drf_yasg',
-    'owner',
+    'uyde_core'
 ]
 
 MIDDLEWARE = [
@@ -138,6 +138,10 @@ CORS_ALLOWED_ORIGINS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ],
 }
-AUTH_USER_MODEL = 'registration.User'
+AUTH_USER_MODEL = 'uyde_core.User'
+

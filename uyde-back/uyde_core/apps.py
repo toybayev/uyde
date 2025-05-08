@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class OwnerConfig(AppConfig):
+class UydeCoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'owner'
+    name = 'uyde_core'
