@@ -30,14 +30,23 @@ services:
     ports:
       - "5453:5432"
 
-  # Сервис для фронтенда (пока пустой, можно будет добавить позже)
-#  frontend:
-#    build:
-#      context: ./frontend
-#      dockerfile: Dockerfile
-#    container_name: react-frontend
-#    ports:
-#      - "3000:3000"
+  # Сервис для фронтенда
+  frontend:
+    build:
+      context: ./uyde-front
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uyde-front:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # чтобы hot reload работал внутри Docker
+    depends_on:
+      - backend
+
+
+
 
 volumes:
   postgres_data:
