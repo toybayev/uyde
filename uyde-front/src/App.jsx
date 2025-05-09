@@ -37,7 +37,7 @@ function App() {
                     <Route path="/users" element={<UserList token={token} />} />
                     <Route path="/users/:id" element={<UserDetail token={token} />} />
                     <Route path="/posts" element={<PostsList token={token} />} />
-                    <Route path="/posts/:id" element={<PostDetail token={token} />} />
+                    {/*<Route path="/posts/:id" element={<PostDetail token={token} />} />*/}
                     <Route path="/create-post" element={<CreatePost token={token} />} />
                 </Routes>
             </Router>
