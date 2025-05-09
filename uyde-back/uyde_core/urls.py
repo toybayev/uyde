@@ -17,6 +17,7 @@ users_router.register(r'favorites', api_views.FavoriteViewSet, basename='user-fa
 urlpatterns = [
     path('api/register/', api_views.RegisterView.as_view(), name='register'),
     path('api/login/', api_views.LoginView.as_view(), name='login'),
+    path('api/users/me/', api_views.current_user, name='current-user'),  # ✅ Добавлено здесь
     path('api/', include(router.urls)),
     path('api/', include(posts_router.urls)),
     path('api/', include(users_router.urls)),

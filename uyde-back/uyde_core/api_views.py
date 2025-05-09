@@ -54,7 +54,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):
-    serializer_class = FavoriteSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -64,7 +63,20 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user_id = self.kwargs['user_pk']
         user = get_object_or_404(User, pk=user_id)
-        serializer.save(seeker=user)
+
+        post_id = self.request.data.get('post')
+        if not post_id:
+            raise serializers.ValidationError({"post": "This field is required."})
+
+        post = get_object_or_404(Post, pk=post_id)
+
+        serializer.save(seeker=user, post=post)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return FavoriteReadSerializer
+        return FavoriteWriteSerializer
+
 
 
 class PhotoViewSet(viewsets.ModelViewSet):
@@ -79,3 +91,13 @@ class PhotoViewSet(viewsets.ModelViewSet):
         post_id = self.kwargs['post_pk']
         post = get_object_or_404(Post, pk=post_id)
         serializer.save(post=post)
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    from .serializers import UserSerializer
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
