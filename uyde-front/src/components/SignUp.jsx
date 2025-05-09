@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope, FaPhone, FaLock } from "react-icons/fa";
 
 export default function SignUp({ onLogin }) {
-    const navigate = useNavigate(); // ✅ Добавлено
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: "", surname: "", email: "", phone: "", password: ""
     });
@@ -23,6 +23,7 @@ export default function SignUp({ onLogin }) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
+
             const data = await res.json();
             if (!res.ok) return alert(`❌ ${data.detail || "Registration failed!"}`);
             alert("✅ Registration successful!");
@@ -32,10 +33,21 @@ export default function SignUp({ onLogin }) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: formData.username, password: formData.password }),
             });
+
             const loginData = await loginRes.json();
+
             if (loginRes.ok && loginData.token) {
+                const userRes = await fetch("http://localhost:8000/api/users/me/", {
+                    headers: {
+                        Authorization: `Token ${loginData.token}`,
+                    },
+                });
+                const userData = await userRes.json();
+
                 localStorage.setItem("token", loginData.token);
-                onLogin && onLogin(loginData.token);
+                localStorage.setItem("user", JSON.stringify(userData));
+
+                onLogin && onLogin(loginData.token, userData);
                 alert("🔓 Logged in automatically!");
                 navigate("/home");
             } else {

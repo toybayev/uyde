@@ -23,6 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
     class Meta:
         model = Post
         fields = '__all__'
@@ -35,7 +36,18 @@ class PhotoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
+# ✅ Для чтения (GET) — вложенный объект
+class FavoriteReadSerializer(serializers.ModelSerializer):
+    post = PostSerializer(read_only=True)
+
     class Meta:
         model = Favorite
         fields = '__all__'
+
+
+# ✅ Для записи (POST, DELETE) — принимает post ID
+class FavoriteWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = '__all__'
+        read_only_fields = ('seeker',)

@@ -23,9 +23,18 @@ export default function Login({ onLogin }) {
             const data = await response.json();
 
             if (response.ok) {
-                alert("✅ Login successful!");
+                const userRes = await fetch("http://localhost:8000/api/users/me/", {
+                    headers: {
+                        Authorization: `Token ${data.token}`,
+                    },
+                });
+                const userData = await userRes.json();
+
                 localStorage.setItem("token", data.token);
-                onLogin && onLogin(data.token);
+                localStorage.setItem("user", JSON.stringify(userData));
+
+                onLogin && onLogin(data.token, userData);
+                alert("✅ Login successful!");
                 navigate("/home");
             } else {
                 alert(`❌ Error: ${data.error || "Login failed!"}`);
