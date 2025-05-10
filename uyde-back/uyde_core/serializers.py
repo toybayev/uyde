@@ -31,9 +31,16 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Photo
         fields = '__all__'
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 # ✅ Для чтения (GET) — вложенный объект
