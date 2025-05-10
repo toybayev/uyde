@@ -16,6 +16,23 @@ services:
       - ./uyde-back/.env
     depends_on:
       - db
+      - s3
+
+
+  s3:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: miniosecret
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniosecret
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
 
   # Сервис для базы данных PostgreSQL
   db:
@@ -49,3 +66,4 @@ services:
 
 volumes:
   postgres_data:
+  minio_data:

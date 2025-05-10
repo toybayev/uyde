@@ -13,6 +13,8 @@ import FavoritesList from './components/FavoritesList';
 import Home from './components/Home';
 import EditPost from './components/EditPost';
 import Profile from './components/Profile';
+import RentPostsList from './components/RentPostsList';
+import SalePostsList from './components/SalePostsList';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -71,6 +73,8 @@ function App() {
 
                     <Route path="/users" element={<UserList token={token} />} />
                     <Route path="/users/:id" element={<UserDetail token={token} />} />
+                    <Route path="/rent-posts" element={<RentPostsList token={token} />} />
+                    <Route path="/sale-posts" element={<SalePostsList token={token} />} />
 
 
                     <Route path="/posts" element={<PostsList token={token} />} />

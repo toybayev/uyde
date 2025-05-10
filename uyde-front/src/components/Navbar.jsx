@@ -9,58 +9,52 @@ export default function Navbar({ token, onLogout, user }) {
     };
 
     return (
-        <nav style={{
-            padding: '10px',
-            backgroundColor: '#f8f9fa',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-        }}>
-            <div>
-                <Link to="/home" style={{ marginRight: '12px', fontWeight: 'bold', fontSize: '18px' }}>
-                    🏠 Uyde.kz
-                </Link>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm">
+            <div className="container-fluid">
+                <Link to="/home" className="navbar-brand fw-bold fs-4">🏠 Uyde.kz</Link>
+                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
 
-                {token && (
-                    <Link to="/home" style={{ marginRight: '10px' }}>Home</Link>
-                )}
-
-                {!token ? (
-                    <>
-                        <Link to="/signup" style={{ marginRight: '10px' }}>Sign Up</Link>
-                        <Link to="/login" style={{ marginRight: '10px' }}>🔒 Login</Link>
-                    </>
-                ) : (
-                    <>
-                        <Link to="/users" style={{ marginRight: '10px' }}>Users</Link>
-
-                        {user && (
+                <div className="collapse navbar-collapse" id="navbarNav">
+                    <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                        {token && (
                             <>
-                                <Link to="/profile" style={{ marginRight: '10px' }}>
-                                    👤 Profile
-                                </Link>
-                                <Link to="/favorites" style={{ marginRight: '10px' }}>
-                                    ❤️ Favorites
-                                </Link>
+                                <li className="nav-item"><Link className="nav-link" to="/home">Home</Link></li>
+                                <li className="nav-item"><Link className="nav-link" to="/rent-posts">🏠 Rent</Link></li>
+                                <li className="nav-item"><Link className="nav-link" to="/sale-posts">🏢 Sale</Link></li>
+                                <li className="nav-item"><Link className="nav-link" to="/posts">All Posts</Link></li>
+                                <li className="nav-item"><Link className="nav-link" to="/create-post">➕ Create Post</Link></li>
                             </>
                         )}
 
-                        <Link to="/posts" style={{ marginRight: '10px' }}>All Posts</Link>
-                        <Link to="/create-post" style={{ marginRight: '10px' }}>Create Post</Link>
+                        {!token ? (
+                            <>
+                                <li className="nav-item"><Link className="nav-link" to="/signup">Sign Up</Link></li>
+                                <li className="nav-item"><Link className="nav-link" to="/login">🔒 Login</Link></li>
+                            </>
+                        ) : (
+                            <>
+                                {/*<li className="nav-item"><Link className="nav-link" to="/users">Users</Link></li>*/}
+                                {user && (
+                                    <>
+                                        <li className="nav-item"><Link className="nav-link" to="/profile">👤 Profile</Link></li>
+                                        <li className="nav-item"><Link className="nav-link" to="/favorites">❤️ Favorites</Link></li>
+                                    </>
+                                )}
+                            </>
+                        )}
+                    </ul>
 
-                        <button onClick={handleLogout} style={{
-                            marginLeft: '15px',
-                            padding: '5px 10px',
-                            backgroundColor: '#dc3545',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer'
-                        }}>
+                    {token && (
+                        <button
+                            onClick={handleLogout}
+                            className="btn btn-danger btn-sm"
+                        >
                             Logout
                         </button>
-                    </>
-                )}
+                    )}
+                </div>
             </div>
         </nav>
     );

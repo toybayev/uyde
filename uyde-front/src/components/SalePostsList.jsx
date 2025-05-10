@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const PostsList = ({ token }) => {
+const SalePostsList = ({ token }) => {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -10,40 +10,34 @@ const PostsList = ({ token }) => {
         const headers = {
             "Content-Type": "application/json",
         };
-
         if (token) {
             headers["Authorization"] = `Token ${token}`;
         }
 
-        fetch("http://localhost:8000/api/posts/", {
-            method: "GET",
-            headers: headers,
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch posts");
-                }
-                return response.json();
+        fetch("http://localhost:8000/api/posts/sale/", { headers })
+            .then(res => {
+                if (!res.ok) throw new Error("Ошибка загрузки объявлений на продажу");
+                return res.json();
             })
-            .then((data) => {
+            .then(data => {
                 setPosts(data);
                 setLoading(false);
             })
-            .catch((error) => {
-                setError(error.message);
+            .catch(err => {
+                setError(err.message);
                 setLoading(false);
             });
     }, [token]);
 
     if (loading) return <div className="text-center mt-5"><div className="spinner-border" /></div>;
-    if (error) return <div className="alert alert-danger text-center mt-4">{error}</div>;
+    if (error) return <div className="alert alert-danger text-center">{error}</div>;
 
     return (
         <div className="container mt-5">
-            <h2 className="mb-4 text-center">Список объявлений</h2>
+            <h2 className="text-center mb-4">Объявления на продажу</h2>
             <div className="row g-4">
                 {posts.length === 0 && (
-                    <p className="text-muted text-center">Нет доступных объявлений.</p>
+                    <p className="text-muted text-center">Нет объявлений на продажу.</p>
                 )}
                 {posts.map((post) => (
                     <div className="col-md-4" key={post.id}>
@@ -60,7 +54,9 @@ const PostsList = ({ token }) => {
                                     <strong>Комнат:</strong> {post.rooms} <br />
                                     <strong>Цена:</strong> {post.price} ₸
                                 </p>
-                                <Link to={`/posts/${post.id}`} className="btn btn-primary btn-sm w-100 mt-2">Подробнее</Link>
+                                <Link to={`/posts/${post.id}`} className="btn btn-warning btn-sm w-100 mt-2">
+                                    Подробнее
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -70,4 +66,4 @@ const PostsList = ({ token }) => {
     );
 };
 
-export default PostsList;
+export default SalePostsList;

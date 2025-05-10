@@ -25,16 +25,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-# 🔹 Фото
 class PhotoSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(use_url=True)  # чтобы приходил полный путь /media/...
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Photo
-        fields = ['id', 'image']
+        fields = '__all__'
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
-# 🔹 Объявление (пост) с вложенными фото
 class PostSerializer(serializers.ModelSerializer):
     owner = UserSerializer(read_only=True)
     photos = PhotoSerializer(many=True, read_only=True)  # 👈 сюда прилетают фото по related_name='photos'
