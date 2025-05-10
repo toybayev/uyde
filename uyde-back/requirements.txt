@@ -10,6 +10,8 @@ drf-yasg==1.21.7
 drf-nested-routers
 pillow==11.1.0
 
+#redis
+django-redis>=5.2.0
 
 #postgres
 psycopg2-binary==2.9.10
