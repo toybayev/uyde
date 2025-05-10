@@ -11,14 +11,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Удаляем эту операцию, так как колонки url нет в базе данных
-        # migrations.RemoveField(
-        #     model_name='photo',
-        #     name='url',
-        # ),
+        migrations.RemoveField(
+            model_name='photo',
+            name='url',
+        ),
         migrations.AddField(
             model_name='photo',
             name='image',
             field=models.ImageField(blank=True, null=True, storage=uyde_core.storage.S3MediaStorage(), upload_to=''),
+            preserve_default=False,
         ),
     ]

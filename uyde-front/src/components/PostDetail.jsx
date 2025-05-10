@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import FavoriteButton from './FavoriteButton';
+import ReviewSection from './ReviewSection';
 
 const PostDetail = ({ token, user }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [post, setPost] = useState(null);
+    const [photos, setPhotos] = useState([]);
     const [error, setError] = useState("");
 
     const handleDelete = async () => {
@@ -13,9 +15,7 @@ const PostDetail = ({ token, user }) => {
         try {
             const response = await fetch(`http://localhost:8000/api/posts/${post.id}/`, {
                 method: "DELETE",
-                headers: {
-                    Authorization: `Token ${token}`,
-                },
+                headers: { Authorization: `Token ${token}` },
             });
 
             if (response.status === 204) {
@@ -30,34 +30,44 @@ const PostDetail = ({ token, user }) => {
     };
 
     useEffect(() => {
-        const headers = {
-            "Content-Type": "application/json",
-        };
+        const headers = { "Content-Type": "application/json" };
         if (token) headers["Authorization"] = `Token ${token}`;
 
-        fetch(`http://localhost:8000/api/posts/${id}/`, {
-            method: "GET",
-            headers,
-        })
+        fetch(`http://localhost:8000/api/posts/${id}/`, { method: "GET", headers })
             .then((res) => {
                 if (!res.ok) throw new Error("Не удалось загрузить объявление");
                 return res.json();
             })
             .then((data) => setPost(data))
             .catch((err) => setError(err.message));
+
+        fetch(`http://localhost:8000/api/posts/${id}/photos/`, {
+            headers: {
+                "Content-Type": "application/json",
+                ...(token && { Authorization: `Token ${token}` })
+            }
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error("Не удалось загрузить фото");
+                return res.json();
+            })
+            .then(setPhotos)
+            .catch((err) => console.error("❌ Ошибка загрузки фото:", err.message));
+
+        return () => {
+            setPhotos([]);
+            setPost(null);
+        };
     }, [id, token]);
 
-    if (error) {
-        return <div className="alert alert-danger mt-4 text-center">{error}</div>;
-    }
+    if (error) return <div className="alert alert-danger mt-4 text-center">{error}</div>;
+    if (!post) return (
+        <div className="text-center mt-5">
+            <div className="spinner-border" role="status" />
+        </div>
+    );
 
-    if (!post) {
-        return (
-            <div className="text-center mt-5">
-                <div className="spinner-border" role="status" />
-            </div>
-        );
-    }
+    const typeLabel = post.type === 'rent_out' ? 'Сдам' : post.type === 'sell' ? 'Продам' : post.type;
 
     return (
         <div className="container mt-5">
@@ -70,13 +80,31 @@ const PostDetail = ({ token, user }) => {
                     <li className="list-group-item"><strong>Адрес:</strong> {post.address}</li>
                     <li className="list-group-item"><strong>Цена:</strong> {post.price} ₸</li>
                     <li className="list-group-item"><strong>Комнат:</strong> {post.rooms}</li>
+                    <li className="list-group-item"><strong>Тип:</strong> {typeLabel}</li>
                     <li className="list-group-item"><strong>Создано:</strong> {new Date(post.created_at).toLocaleDateString()}</li>
                     <li className="list-group-item">
                         <strong>Владелец:</strong> {post.owner?.full_name || `Пользователь ID ${post.owner?.id || 'неизвестен'}`}
                     </li>
                 </ul>
 
-                <div className="text-end text-muted fst-italic">ID: {post.id}</div>
+                {photos.length > 0 && (
+                    <div className="mt-4">
+                        <h5>📸 Фотографии</h5>
+                        <div className="d-flex flex-wrap gap-3">
+                            {photos.map(photo => (
+                                <img
+                                    key={photo.id}
+                                    src={photo.image}
+                                    alt={`Фото ${photo.id}`}
+                                    className="img-thumbnail"
+                                    style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="text-end text-muted fst-italic mt-3">ID: {post.id}</div>
 
                 {token && post.owner?.id === user?.id && (
                     <div className="mt-3 d-flex gap-2">
@@ -104,6 +132,13 @@ const PostDetail = ({ token, user }) => {
                         token={token}
                     />
                 </div>
+                <ReviewSection
+                    token={token}
+                    postId={post.id}
+                    currentUserId={user?.id}
+                    postOwnerId={post.owner.id}
+                />
+
             </div>
         </div>
     );
