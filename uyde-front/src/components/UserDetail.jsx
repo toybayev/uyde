@@ -17,7 +17,7 @@ const UserDetail = ({ token }) => {
                 });
 
                 if (!response.ok) {
-                    throw new Error("Failed to fetch user data");
+                    throw new Error("Не удалось загрузить пользователя");
                 }
 
                 const data = await response.json();
@@ -30,16 +30,34 @@ const UserDetail = ({ token }) => {
         fetchUser();
     }, [id, token]);
 
-    if (error) return <p>Error: {error}</p>;
-    if (!user) return <p>Loading...</p>;
+    if (error) return <div className="alert alert-danger mt-4 text-center">{error}</div>;
+    if (!user) return (
+        <div className="text-center mt-5">
+            <div className="spinner-border" role="status" />
+        </div>
+    );
 
     return (
-        <div>
-            <h2>User Detail</h2>
-            <p><strong>Username:</strong> {user.username}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Full Name:</strong> {user.full_name}</p>
-            <p><strong>Phone:</strong> {user.phone}</p>
+        <div className="container mt-5">
+            <div className="card shadow-sm p-4">
+                <div className="card-body">
+                    <h3 className="card-title mb-4 text-center">👤 Профиль пользователя</h3>
+
+                    <ul className="list-group list-group-flush">
+                        <li className="list-group-item">
+                            <strong>👤 Username:</strong> {user.username}
+                        </li>
+                        <li className="list-group-item">
+                            <strong>📧 Email:</strong> {user.email || "не указано"}
+                        </li>
+
+                        <li className="list-group-item">
+                            <strong>📞 Телефон:</strong> {user.phone || "не указано"}
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
         </div>
     );
 };

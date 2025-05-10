@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import FavoriteButton from './FavoriteButton';
 import ReviewSection from './ReviewSection';
 
@@ -33,7 +33,7 @@ const PostDetail = ({ token, user }) => {
         const headers = { "Content-Type": "application/json" };
         if (token) headers["Authorization"] = `Token ${token}`;
 
-        fetch(`http://localhost:8000/api/posts/${id}/`, { method: "GET", headers })
+        fetch(`http://localhost:8000/api/posts/${id}/`, { headers })
             .then((res) => {
                 if (!res.ok) throw new Error("Не удалось загрузить объявление");
                 return res.json();
@@ -83,7 +83,14 @@ const PostDetail = ({ token, user }) => {
                     <li className="list-group-item"><strong>Тип:</strong> {typeLabel}</li>
                     <li className="list-group-item"><strong>Создано:</strong> {new Date(post.created_at).toLocaleDateString()}</li>
                     <li className="list-group-item">
-                        <strong>Владелец:</strong> {post.owner?.full_name || `Пользователь ID ${post.owner?.id || 'неизвестен'}`}
+                        <strong>Владелец:</strong>{" "}
+                        {post.owner ? (
+                            <Link to={`/users/${post.owner.id}`}>
+                                Посмотреть профиль владельца
+                            </Link>
+                        ) : (
+                            "неизвестен"
+                        )}
                     </li>
                 </ul>
 
@@ -132,13 +139,13 @@ const PostDetail = ({ token, user }) => {
                         token={token}
                     />
                 </div>
+
                 <ReviewSection
                     token={token}
                     postId={post.id}
                     currentUserId={user?.id}
                     postOwnerId={post.owner.id}
                 />
-
             </div>
         </div>
     );
