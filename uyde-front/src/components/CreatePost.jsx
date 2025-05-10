@@ -53,6 +53,7 @@ export default function CreatePost({ token }) {
             for (let file of files) {
                 const formData = new FormData();
                 formData.append("image", file);
+                formData.append("post", post.id);
 
                 const photoRes = await fetch(`http://localhost:8000/api/posts/${post.id}/photos/`, {
                     method: "POST",

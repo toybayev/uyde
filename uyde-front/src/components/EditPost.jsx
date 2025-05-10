@@ -56,9 +56,13 @@ export default function EditPost({ token }) {
 
       if (!res.ok) throw new Error("Ошибка обновления поста");
 
+
+
       for (let file of newPhotos) {
         const formData = new FormData();
         formData.append("image", file);
+        formData.append("post", id);
+
         const upload = await fetch(`http://localhost:8000/api/posts/${id}/photos/`, {
           method: "POST",
           headers: { Authorization: `Token ${token}` },
