@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const UserDetail = ({ token }) => {
     const { id } = useParams();
@@ -7,36 +7,39 @@ const UserDetail = ({ token }) => {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const headers = {
-            "Content-Type": "application/json",
+        const fetchUser = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/users/${id}/`, {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user data");
+                }
+
+                const data = await response.json();
+                setUser(data);
+            } catch (err) {
+                setError(err.message);
+            }
         };
 
-        if (token) {
-            headers["Authorization"] = `Token ${token}`;
-        }
-
-        fetch(`http://localhost:8000/api/users/${id}/`, {
-            method: "GET",
-            headers: headers
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch user");
-                }
-                return response.json();
-            })
-            .then(data => setUser(data))
-            .catch(error => setError(error.message));
+        fetchUser();
     }, [id, token]);
 
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
-    if (!user) return <p>Loading user...</p>;
+    if (error) return <p>Error: {error}</p>;
+    if (!user) return <p>Loading...</p>;
 
     return (
         <div>
             <h2>User Detail</h2>
             <p><strong>Username:</strong> {user.username}</p>
             <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Full Name:</strong> {user.full_name}</p>
+            <p><strong>Phone:</strong> {user.phone}</p>
         </div>
     );
 };

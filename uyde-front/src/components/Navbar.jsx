@@ -36,8 +36,8 @@ export default function Navbar({ token, onLogout, user }) {
 
                         {user && (
                             <>
-                                <Link to={`/users/${user.id}`} style={{ marginRight: '10px' }}>
-                                    Profile
+                                <Link to="/profile" style={{ marginRight: '10px' }}>
+                                    👤 Profile
                                 </Link>
                                 <Link to="/favorites" style={{ marginRight: '10px' }}>
                                     ❤️ Favorites

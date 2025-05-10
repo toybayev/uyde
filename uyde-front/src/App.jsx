@@ -11,10 +11,12 @@ import PostDetail from './components/PostDetail';
 import CreatePost from './components/CreatePost';
 import FavoritesList from './components/FavoritesList';
 import Home from './components/Home';
-import EditPost from "./components/EditPost";
-
-
+import EditPost from './components/EditPost';
+import Profile from './components/Profile';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+
+
 
 const PrivateRoute = ({ token, children }) => {
     return token ? children : <Navigate to="/login" replace />;
@@ -43,8 +45,6 @@ function App() {
         }
     }, [token]);
 
-    console.log("👤 user object:", user);
-
     const handleLogin = (newToken, userData) => {
         setToken(newToken);
         setUser(userData);
@@ -68,22 +68,31 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/signup" element={<SignUp onLogin={handleLogin} />} />
                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
-<Route
-  path="/posts/:id/edit"
-  element={<EditPost token={token} />}
-/>
 
                     <Route path="/users" element={<UserList token={token} />} />
                     <Route path="/users/:id" element={<UserDetail token={token} />} />
+
+
                     <Route path="/posts" element={<PostsList token={token} />} />
                     <Route path="/posts/:id" element={<PostDetail token={token} user={user} />} />
+                    <Route path="/posts/:id/edit" element={<EditPost token={token} />} />
                     <Route path="/create-post" element={<CreatePost token={token} />} />
+                    <Route path="/posts/:id" element={<PostDetail token={token} user={user} />} />
 
                     <Route
                         path="/favorites"
                         element={
                             <PrivateRoute token={token}>
                                 <FavoritesList userPk={user?.id} token={token} />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/profile"
+                        element={
+                            <PrivateRoute token={token}>
+                                <Profile token={token} user={user} />
                             </PrivateRoute>
                         }
                     />
