@@ -1,38 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
-const CreatePost = ({ token }) => {
-    const [form, setForm] = useState({
-        title: '',
-        description: '',
-        city: '',
-        address: '',
-        price: '',
-        rooms: '',
-    });
-    const [message, setMessage] = useState('');
+export default function CreatePost({ token }) {
+    const navigate = useNavigate();
+    const fileInputRef = useRef();
+
+    const initialForm = {
+        title: "",
+        description: "",
+        city: "",
+        address: "",
+        price: "",
+        rooms: "",
+        type: "rent_out",
+    };
+
+    const [form, setForm] = useState(initialForm);
+    const [files, setFiles] = useState([]);
+    const [message, setMessage] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleFileChange = (e) => {
+        setFiles([...e.target.files]);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-        if (token) {
-            headers['Authorization'] = `Token ${token}`;
-        }
+        setMessage("");
 
         try {
-            const response = await fetch('http://localhost:8000/api/posts/', {
-                method: 'POST',
-                headers,
+            const response = await fetch("http://localhost:8000/api/posts/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Token ${token}`,
+                },
                 body: JSON.stringify({
                     ...form,
                     price: parseFloat(form.price),
@@ -41,43 +47,54 @@ const CreatePost = ({ token }) => {
                 }),
             });
 
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(JSON.stringify(errData));
+            if (!response.ok) throw new Error("Ошибка создания поста");
+            const post = await response.json();
+
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append("image", file);
+
+                const photoRes = await fetch(`http://localhost:8000/api/posts/${post.id}/photos/`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                    body: formData,
+                });
+
+                if (!photoRes.ok) throw new Error("Ошибка загрузки фотографии");
             }
 
-            setForm({
-                title: '',
-                description: '',
-                city: '',
-                address: '',
-                price: '',
-                rooms: '',
-            });
-            setMessage('✅ Объявление успешно создано!');
+            setForm(initialForm);
+            setFiles([]);
+            fileInputRef.current.value = null;
+            setMessage("✅ Объявление и фото успешно загружены!");
+            navigate("/profile");
         } catch (err) {
-            setMessage(`❌ Ошибка: ${err.message}`);
+            setMessage(`❌ ${err.message}`);
         }
     };
 
     return (
         <div className="container d-flex justify-content-center align-items-center min-vh-100">
-            <div className="card shadow p-4 w-100" style={{ maxWidth: '600px' }}>
+            <div className="card shadow p-4 w-100" style={{ maxWidth: "600px" }}>
                 <h3 className="mb-4 text-center">Создать новое объявление</h3>
+
                 {message && (
-                    <div className={`alert ${message.startsWith('✅') ? 'alert-success' : 'alert-danger'}`}>
+                    <div className={`alert ${message.startsWith("✅") ? "alert-success" : "alert-danger"}`}>
                         {message}
                     </div>
                 )}
+
                 <form onSubmit={handleSubmit}>
                     {[
-                        { name: 'title', label: 'Название' },
-                        { name: 'description', label: 'Описание' },
-                        { name: 'city', label: 'Город' },
-                        { name: 'address', label: 'Адрес' },
-                        { name: 'price', label: 'Цена', type: 'number' },
-                        { name: 'rooms', label: 'Количество комнат', type: 'number' },
-                    ].map(({ name, label, type = 'text' }) => (
+                        { name: "title", label: "Название" },
+                        { name: "description", label: "Описание" },
+                        { name: "city", label: "Город" },
+                        { name: "address", label: "Адрес" },
+                        { name: "price", label: "Цена", type: "number" },
+                        { name: "rooms", label: "Количество комнат", type: "number" },
+                    ].map(({ name, label, type = "text" }) => (
                         <div className="mb-3" key={name}>
                             <label className="form-label">{label}</label>
                             <input
@@ -90,11 +107,34 @@ const CreatePost = ({ token }) => {
                             />
                         </div>
                     ))}
+
+                    <div className="mb-3">
+                        <label className="form-label">Тип объявления</label>
+                        <select
+                            name="type"
+                            className="form-select"
+                            value={form.type}
+                            onChange={handleChange}
+                        >
+                            <option value="rent_out">Сдам</option>
+                            <option value="sell">Продам</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label">Фото (можно несколько)</label>
+                        <input
+                            type="file"
+                            className="form-control"
+                            multiple
+                            onChange={handleFileChange}
+                            ref={fileInputRef}
+                        />
+                    </div>
+
                     <button type="submit" className="btn btn-primary w-100">Создать</button>
                 </form>
             </div>
         </div>
     );
-};
-
-export default CreatePost;
+}

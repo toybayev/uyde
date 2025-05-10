@@ -4,13 +4,25 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, get_user_model
-from .models import Post, Photo, Favorite
-from .serializers import *
 from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import ListAPIView
+from rest_framework import permissions
+from .models import Review
+from rest_framework.exceptions import ValidationError
+
+
+
+from .models import Post, Photo, Favorite
+from .serializers import (
+    RegisterSerializer, UserSerializer, PostSerializer,
+    PhotoSerializer, FavoriteReadSerializer, FavoriteWriteSerializer,ReviewSerializer
+)
 
 User = get_user_model()
 
 
+# 🔐 Регистрация
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -23,6 +35,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 🔐 Логин
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -38,12 +51,22 @@ class LoginView(APIView):
         return Response({"token": token.key}, status=status.HTTP_200_OK)
 
 
+# 👤 Получить текущего пользователя
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+
+# 👤 Список пользователей
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
 
+# 📮 Посты
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -53,6 +76,16 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
+# 📮 Посты одного пользователя (для /users/{id}/posts/)
+class UserPostViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Post.objects.filter(owner_id=self.kwargs['user_pk'])
+
+
+# ⭐ Избранные
 class FavoriteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -63,13 +96,12 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user_id = self.kwargs['user_pk']
         user = get_object_or_404(User, pk=user_id)
-
         post_id = self.request.data.get('post')
+
         if not post_id:
             raise serializers.ValidationError({"post": "This field is required."})
 
         post = get_object_or_404(Post, pk=post_id)
-
         serializer.save(seeker=user, post=post)
 
     def get_serializer_class(self):
@@ -78,7 +110,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return FavoriteWriteSerializer
 
 
-
+# 📷 Фото
 class PhotoViewSet(viewsets.ModelViewSet):
     serializer_class = PhotoSerializer
     permission_classes = [IsAuthenticated]
@@ -91,13 +123,45 @@ class PhotoViewSet(viewsets.ModelViewSet):
         post_id = self.kwargs['post_pk']
         post = get_object_or_404(Post, pk=post_id)
         serializer.save(post=post)
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def current_user(request):
-    from .serializers import UserSerializer
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data)
+    def get_serializer_context(self):
+        return {"request": self.request}
+
+
+# 🏠 Отдельные списки
+class RentPostList(ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Post.objects.filter(type='rent_out', is_active=True)
+
+
+class SalePostList(ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Post.objects.filter(type='sell', is_active=True)
+
+
+
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        post_id = self.kwargs.get('post_pk')  # важно: post_pk, не post_id
+        return Review.objects.filter(post_id=post_id)
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get('post_pk')
+        post = Post.objects.get(id=post_id)
+
+        if post.owner == self.request.user:
+            raise ValidationError("❌ You cannot review your own post.")
+
+        serializer.save(author=self.request.user, post=post)
+
