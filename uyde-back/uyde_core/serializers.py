@@ -48,7 +48,6 @@ class PostSerializer(serializers.ModelSerializer):
         read_only_fields = ('owner',)
 
 
-# ✅ Для чтения (GET) — вложенный объект
 # 🔹 Избранное — для чтения (GET)
 class FavoriteReadSerializer(serializers.ModelSerializer):
     post = PostSerializer(read_only=True)
