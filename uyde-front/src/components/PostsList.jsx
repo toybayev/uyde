@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const PostsList = ({ token }) => {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
+    const [retryAfter, setRetryAfter] = useState(null);
+    const navigate = useNavigate();
 
-    useEffect(() => {
+    const fetchPosts = () => {
+        setLoading(true);
+        setError("");
+
         const headers = {
             "Content-Type": "application/json",
         };
@@ -20,23 +25,93 @@ const PostsList = ({ token }) => {
             headers: headers,
         })
             .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch posts");
+                // Проверка на превышение лимита запросов (429)
+                if (response.status === 429) {
+                    // Получаем заголовок Retry-After, если он есть
+                    const retryAfterHeader = response.headers.get('Retry-After');
+                    const retrySeconds = retryAfterHeader ? parseInt(retryAfterHeader) : 60;
+                    setRetryAfter(retrySeconds);
+                    throw new Error(`Превышен лимит запросов. Пожалуйста, подождите ${retrySeconds} секунд перед следующей попыткой.`);
                 }
+
+                // Проверка на статус 401 - не авторизован
+                if (response.status === 401) {
+                    throw new Error("Для доступа к объявлениям необходима авторизация. Пожалуйста, войдите в систему.");
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки объявлений: ${response.status}`);
+                }
+
                 return response.json();
             })
             .then((data) => {
                 setPosts(data);
                 setLoading(false);
+                setRetryAfter(null);
             })
             .catch((error) => {
                 setError(error.message);
                 setLoading(false);
+
+                // Если ошибка авторизации, можно предложить пользователю войти
+                if (error.message.includes("необходима авторизация")) {
+                    setTimeout(() => {
+                        if (window.confirm("Перейти на страницу входа?")) {
+                            navigate("/login");
+                        }
+                    }, 1000);
+                }
             });
+    };
+
+    // Автоматическая повторная попытка после истечения времени ожидания
+    useEffect(() => {
+        let retryTimer;
+        if (retryAfter) {
+            retryTimer = setTimeout(() => {
+                fetchPosts();
+            }, retryAfter * 1000);
+        }
+
+        return () => {
+            if (retryTimer) clearTimeout(retryTimer);
+        };
+    }, [retryAfter]);
+
+    useEffect(() => {
+        fetchPosts();
     }, [token]);
 
     if (loading) return <div className="text-center mt-5"><div className="spinner-border" /></div>;
-    if (error) return <div className="alert alert-danger text-center mt-4">{error}</div>;
+
+    if (error) {
+        return (
+            <div className="container mt-5">
+                <div className="alert alert-danger text-center">
+                    <h4>Ошибка!</h4>
+                    <p>{error}</p>
+                    {error.includes("необходима авторизация") && (
+                        <Link to="/login" className="btn btn-outline-danger mt-2">
+                            Войти в систему
+                        </Link>
+                    )}
+                    {error.includes("Превышен лимит запросов") && retryAfter && (
+                        <div className="mt-3">
+                            <p>Автоматическая повторная попытка через <strong>{retryAfter}</strong> секунд</p>
+                            <div className="progress">
+                                <div
+                                    className="progress-bar progress-bar-striped progress-bar-animated"
+                                    role="progressbar"
+                                    style={{ width: "100%", transition: `width ${retryAfter}s linear` }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mt-5">

@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-
 from pathlib import Path
 
 import environ
+from django.conf.global_settings import CACHES
 
 # Инициализация django-environ
 env = environ.Env()
@@ -21,7 +21,6 @@ environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -33,7 +32,6 @@ SECRET_KEY = 'django-insecure-+2-^vh)hdm9ehucqkt(hao2=k3id#!8v)_1t_ik+xn#ibr^hm@
 DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
-
 
 # Application definition
 
@@ -49,7 +47,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework.authtoken',
     'drf_yasg',
-    'uyde_core'
+    'uyde_core',
+    'silk',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'uyde-back.urls'
@@ -82,7 +82,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'uyde-back.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -90,7 +89,6 @@ WSGI_APPLICATION = 'uyde-back.wsgi.application'
 DATABASES = {
     'default': env.db('DATABASE_URL', default='postgres://root:root@localhost:5432/uyde_db')
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -110,7 +108,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -121,7 +118,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -142,11 +138,20 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.IsAuthenticated',
     # ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
+        # 'uyde_core.throttles.BurstRateThrottle',
+        # 'uyde_core.throttles.SustainedRateThrottle'
+
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '100/hour',
+        'posts': '10/minute',
+        'review': '10/minute',
+    }
 }
 AUTH_USER_MODEL = 'uyde_core.User'
-
-
-
 
 # Обязательно добавьте 'storages' в INSTALLED_APPS
 INSTALLED_APPS += ['storages']
@@ -161,7 +166,7 @@ AWS_STORAGE_BUCKET_NAME = 'media'
 # Используется Django внутри Docker
 AWS_S3_ENDPOINT_URL = 'http://minio:9000'
 
-AWS_S3_CUSTOM_DOMAIN = 'http://localhost:9000' # снаружи (для браузера)
+AWS_S3_CUSTOM_DOMAIN = 'http://localhost:9000'  # снаружи (для браузера)
 
 # Дополнительные параметры
 AWS_S3_REGION_NAME = 'us-east-1'
@@ -177,3 +182,17 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # 🌍 URL для доступа к медиафайлам в браузере
 MEDIA_URL = f'{AWS_S3_CUSTOM_DOMAIN}/{AWS_STORAGE_BUCKET_NAME}/'
 
+# REDIS
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379

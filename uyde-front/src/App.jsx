@@ -20,6 +20,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
+
 const PrivateRoute = ({ token, children }) => {
     return token ? children : <Navigate to="/login" replace />;
 };
