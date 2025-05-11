@@ -11,6 +11,9 @@ from rest_framework import permissions
 from .models import Review
 from rest_framework.exceptions import ValidationError
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 
 
 from .models import Post, Photo, Favorite
@@ -22,7 +25,6 @@ from .serializers import (
 User = get_user_model()
 
 
-# 🔐 Регистрация
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -35,7 +37,6 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# 🔐 Логин
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -51,7 +52,6 @@ class LoginView(APIView):
         return Response({"token": token.key}, status=status.HTTP_200_OK)
 
 
-# 👤 Получить текущего пользователя
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def current_user(request):
@@ -59,24 +59,34 @@ def current_user(request):
     return Response(serializer.data)
 
 
-# 👤 Список пользователей
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
 
-# 📮 Посты
+
 class PostViewSet(viewsets.ModelViewSet):
+
+    throttle_scope = 'posts'
+
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
+
+    @method_decorator(cache_page(60 * 15, key_prefix='post_list'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        import time
+        time.sleep(1)
+        return super().get_queryset()
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
 
-# 📮 Посты одного пользователя (для /users/{id}/posts/)
 class UserPostViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
@@ -85,7 +95,6 @@ class UserPostViewSet(viewsets.ReadOnlyModelViewSet):
         return Post.objects.filter(owner_id=self.kwargs['user_pk'])
 
 
-# ⭐ Избранные
 class FavoriteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -110,7 +119,6 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return FavoriteWriteSerializer
 
 
-# 📷 Фото
 class PhotoViewSet(viewsets.ModelViewSet):
     serializer_class = PhotoSerializer
     permission_classes = [IsAuthenticated]
@@ -128,7 +136,6 @@ class PhotoViewSet(viewsets.ModelViewSet):
         return {"request": self.request}
 
 
-# 🏠 Отдельные списки
 class RentPostList(ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [AllowAny]
@@ -149,6 +156,7 @@ class SalePostList(ListAPIView):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    throttle_scope = 'review'
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 

@@ -4,6 +4,7 @@ import { FaUser, FaLock } from "react-icons/fa";
 
 export default function Login({ onLogin }) {
     const [formData, setFormData] = useState({ username: "", password: "" });
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -13,12 +14,20 @@ export default function Login({ onLogin }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
+
         try {
             const response = await fetch("http://localhost:8000/api/login/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
+
+            // Проверка на слишком много запросов (429)
+            if (response.status === 429) {
+                setError("⚠️ Слишком много попыток входа. Пожалуйста, подождите немного и попробуйте снова.");
+                return;
+            }
 
             const data = await response.json();
 
@@ -37,10 +46,10 @@ export default function Login({ onLogin }) {
                 alert("✅ Login successful!");
                 navigate("/home");
             } else {
-                alert(`❌ Error: ${data.error || "Login failed!"}`);
+                setError(`❌ Error: ${data.error || "Login failed!"}`);
             }
-        } catch {
-            alert("⚠️ Error sending form data");
+        } catch (err) {
+            setError("⚠️ Error sending form data: " + (err.message || "Unknown error"));
         }
     };
 
@@ -48,6 +57,14 @@ export default function Login({ onLogin }) {
         <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
             <div className="card shadow-lg p-4" style={{ maxWidth: "400px", width: "100%" }}>
                 <h3 className="text-center mb-4">Welcome Back 👋</h3>
+
+                {/* Показываем сообщение об ошибке, если оно есть */}
+                {error && (
+                    <div className="alert alert-danger mb-3">
+                        {error}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label className="form-label"><FaUser className="me-2" />Username</label>
