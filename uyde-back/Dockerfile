@@ -20,12 +20,11 @@ RUN pip install --upgrade pip && \
 # Копируем код проекта
 COPY ./uyde-back /app
 
-# Создаем директорию для статических файлов и собираем их
-RUN mkdir -p /app/staticfiles && \
-    python manage.py collectstatic --noinput
+# Создаем директорию для статических файлов
+RUN mkdir -p /app/staticfiles
 
 # Открываем порт
 EXPOSE 8000
 
 # Запускаем через gunicorn вместо runserver
-CMD ["gunicorn", "uyde-back.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn 'uyde-back.wsgi:application' --bind 0.0.0.0:8000 --workers 3"]
