@@ -20,6 +20,10 @@ RUN pip install --upgrade pip && \
 # Копируем код проекта
 COPY ./uyde-back /app
 
+# Создаем директорию для статических файлов и собираем их
+RUN mkdir -p /app/staticfiles && \
+    python manage.py collectstatic --noinput
+
 # Открываем порт
 EXPOSE 8000
 
