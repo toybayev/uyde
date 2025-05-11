@@ -20,7 +20,12 @@ services:
       context: .
       dockerfile: uyde-back/Dockerfile
     container_name: django-backend
-    command: [ "sh", "-c", "cd /app && python manage.py migrate && python manage.py migrate silk && gunicorn 'uyde-back.wsgi:application' --bind 0.0.0.0:8000 --workers 3" ]
+    command: >
+      sh -c "
+        python manage.py migrate && 
+        python manage.py migrate silk && 
+        gunicorn 'uyde-back.wsgi:application' --bind 0.0.0.0:8000 --workers 3
+      "
     volumes:
       - ./uyde-back:/app
     # Заменяем expose на ports
