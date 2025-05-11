@@ -9,6 +9,7 @@ django-cors-headers==4.3.1
 drf-yasg==1.21.7
 drf-nested-routers
 pillow==11.1.0
+django-silk
 
 
 #postgres
@@ -20,3 +21,4 @@ django-redis>=5.2.0
 # AWS integration
 boto3
 django-storages
+

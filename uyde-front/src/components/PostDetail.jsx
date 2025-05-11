@@ -104,7 +104,7 @@ const PostDetail = ({ token, user }) => {
                                     src={photo.image}
                                     alt={`Фото ${photo.id}`}
                                     className="img-thumbnail"
-                                    style={{ maxWidth: "200px", maxHeight: "200px" }}
+                                    style={{ maxWidth: "1000px", maxHeight: "800px" }}
                                 />
                             ))}
                         </div>

@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework.authtoken',
     'drf_yasg',
-    'uyde_core'
+    'uyde_core',
+    'silk',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'uyde-back.urls'
