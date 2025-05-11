@@ -9,5 +9,5 @@ RUN npm run build
 # Этап 2: Настройка Nginx с собранным приложением
 FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
-COPY ./nginx/default.conf /etc/nginx/nginx.conf
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
