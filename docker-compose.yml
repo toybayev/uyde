@@ -1,23 +1,34 @@
 version: '3.8'
 
 services:
-  # Сервис для Django
+  # Nginx сервис для фронтенда и проксирования
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  # Бэкенд с Gunicorn
   backend:
     build:
       context: .
       dockerfile: uyde-back/Dockerfile
     container_name: django-backend
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: [ "sh", "-c", "cd /app && gunicorn 'uyde-back.wsgi:application' --bind 0.0.0.0:8000 --workers 3" ]
     volumes:
       - ./uyde-back:/app
+    # Заменяем expose на ports
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Открываем порт наружу
     env_file:
       - ./uyde-back/.env
     depends_on:
       - db
       - s3
-
+      - redis
 
   s3:
     image: minio/minio:latest
@@ -34,7 +45,6 @@ services:
       - "9000:9000"
       - "9001:9001"
 
-  # Сервис для базы данных PostgreSQL
   db:
     image: postgres:15
     container_name: uyde_postgres-db
@@ -46,21 +56,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5453:5432"
-
-  # Сервис для фронтенда
-#  frontend:
-#    build:
-#      context: ./uyde-front
-#      dockerfile: Dockerfile
-#    container_name: react-frontend
-#    ports:
-#      - "3000:3000"
-#    volumes:
-#      - ./uyde-front:/app
-#    environment:
-#      - CHOKIDAR_USEPOLLING=true  # чтобы hot reload работал внутри Docker
-#    depends_on:
-#      - backend
 
   redis:
     image: redis:7
