@@ -1,0 +1,11 @@
+<CORSConfiguration>
+  <CORSRule>
+    <AllowedOrigin>https://uyderu-git-main-sezims-projects-2846a092.vercel.app</AllowedOrigin>
+    <AllowedMethod>GET</AllowedMethod>
+    <AllowedMethod>POST</AllowedMethod>
+    <AllowedMethod>PUT</AllowedMethod>
+    <AllowedHeader>*</AllowedHeader>
+    <ExposeHeader>ETag</ExposeHeader>
+    <MaxAgeSeconds>3000</MaxAgeSeconds>
+  </CORSRule>
+</CORSConfiguration>
