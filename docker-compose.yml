@@ -12,8 +12,23 @@ services:
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - static_volume:/app/static:ro
+      - ./uyde-front/build:/usr/share/nginx/html:ro
     depends_on:
       - backend
+      - frontend
+
+  # Фронтенд React приложение
+  frontend:
+    build:
+      context: ./uyde-front
+      dockerfile: Dockerfile
+    volumes:
+      - ./uyde-front:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+    command: >
+      sh -c "npm install && npm run build"
 
   # Бэкенд с Gunicorn
   backend:

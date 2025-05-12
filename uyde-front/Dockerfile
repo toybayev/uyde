@@ -1,19 +1,29 @@
-# Development environment for React
-FROM node:18
+# Production environment for React
+FROM node:18-alpine as build
 
 WORKDIR /app
 
-# Копируем только package файлы — чтобы кэшировать установку зависимостей
+# Копируем только package файлы
 COPY package*.json ./
 
-# Установка зависимостей строго по lock-файлу
+# Установка зависимостей
 RUN npm ci
 
-# Копируем всё остальное после установки — чтобы слои Docker не пересобирались лишний раз
+# Копируем исходный код
 COPY . .
 
-# Открываем порт, на котором работает dev-сервер
-EXPOSE 3000
+# Собираем приложение
+RUN npm run build
 
-# Запускаем dev-сервер
-CMD ["npm", "start"]
+# Production environment
+FROM nginx:alpine
+
+# Копируем собранное приложение
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Копируем конфигурацию nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
