@@ -5,7 +5,6 @@
     <AllowedMethod>POST</AllowedMethod>
     <AllowedMethod>PUT</AllowedMethod>
     <AllowedHeader>*</AllowedHeader>
-    <ExposeHeader>ETag</ExposeHeader>
     <MaxAgeSeconds>3000</MaxAgeSeconds>
   </CORSRule>
 </CORSConfiguration>
