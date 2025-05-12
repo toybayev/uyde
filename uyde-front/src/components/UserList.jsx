@@ -15,7 +15,7 @@ const UsersList = ({ token }) => {
             headers["Authorization"] = `Token ${token}`;
         }
 
-        fetch("http://localhost:8000/api/users/", {
+        fetch("https://uyde.ru/api/users/", {
             method: "GET",
             headers: headers,
         })

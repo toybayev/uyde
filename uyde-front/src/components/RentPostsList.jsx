@@ -12,7 +12,7 @@ export default function RentPostsList({ token }) {
         };
         if (token) headers["Authorization"] = `Token ${token}`;
 
-        fetch("http://localhost:8000/api/posts/rent/", { headers })
+        fetch("https://uyde.ru/api/posts/rent/", { headers })
             .then(res => {
                 if (!res.ok) throw new Error("Ошибка загрузки аренды");
                 return res.json();

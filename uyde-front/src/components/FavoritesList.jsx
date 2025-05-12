@@ -9,7 +9,7 @@ const FavoritesList = ({ userPk, token }) => {
     useEffect(() => {
         const fetchFavorites = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/users/${userPk}/favorites/`, {
+                const response = await fetch(`https://uyde.ru/api/users/${userPk}/favorites/`, {
                     headers: {
                         'Authorization': `Token ${token}`,
                         'Content-Type': 'application/json',

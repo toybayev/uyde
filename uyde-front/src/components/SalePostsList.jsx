@@ -14,7 +14,7 @@ const SalePostsList = ({ token }) => {
             headers["Authorization"] = `Token ${token}`;
         }
 
-        fetch("http://localhost:8000/api/posts/sale/", { headers })
+        fetch("https://uyde.ru/api/posts/sale/", { headers })
             .then(res => {
                 if (!res.ok) throw new Error("Ошибка загрузки объявлений на продажу");
                 return res.json();

@@ -20,7 +20,7 @@ const PostsList = ({ token }) => {
             headers["Authorization"] = `Token ${token}`;
         }
 
-        fetch("http://localhost:8000/api/posts/", {
+        fetch("https://uyde.ru/api/posts/", {
             method: "GET",
             headers: headers,
         })

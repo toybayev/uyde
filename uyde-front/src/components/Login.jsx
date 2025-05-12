@@ -17,7 +17,7 @@ export default function Login({ onLogin }) {
         setError("");
 
         try {
-            const response = await fetch("http://localhost:8000/api/login/", {
+            const response = await fetch("https://uyde.ru/api/login/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -32,7 +32,7 @@ export default function Login({ onLogin }) {
             const data = await response.json();
 
             if (response.ok) {
-                const userRes = await fetch("http://localhost:8000/api/users/me/", {
+                const userRes = await fetch("https://uyde.ru/api/users/me/", {
                     headers: {
                         Authorization: `Token ${data.token}`,
                     },

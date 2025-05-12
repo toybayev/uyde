@@ -137,7 +137,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1",
     "http://127.0.0.1:80",
     "http://127.0.0.1:3000",
-    "https://uyde.ru"
+    "https://uyde.ru",
+    "https://uyderu-git-main-sezims-projects-2846a092.vercel.app"
 ]
 
 # Добавляем дополнительные настройки

@@ -18,7 +18,7 @@ export default function SignUp({ onLogin }) {
         if (Object.values(formData).some(v => !v)) return alert("Please fill out all fields.");
 
         try {
-            const res = await fetch("http://localhost:8000/api/register/", {
+            const res = await fetch("https://uyde.ru/api/register/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -28,7 +28,7 @@ export default function SignUp({ onLogin }) {
             if (!res.ok) return alert(`❌ ${data.detail || "Registration failed!"}`);
             alert("✅ Registration successful!");
 
-            const loginRes = await fetch("http://localhost:8000/api/login/", {
+            const loginRes = await fetch("https://uyde.ru/api/login/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: formData.username, password: formData.password }),
@@ -37,7 +37,7 @@ export default function SignUp({ onLogin }) {
             const loginData = await loginRes.json();
 
             if (loginRes.ok && loginData.token) {
-                const userRes = await fetch("http://localhost:8000/api/users/me/", {
+                const userRes = await fetch("https://uyde.ru/api/users/me/", {
                     headers: {
                         Authorization: `Token ${loginData.token}`,
                     },

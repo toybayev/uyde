@@ -7,7 +7,7 @@ export default function Profile({ token, user }) {
     useEffect(() => {
         if (!user || !token) return;
 
-        fetch(`http://localhost:8000/api/users/${user.id}/posts/`, {
+        fetch(`https://uyde.ru/api/users/${user.id}/posts/`, {
             headers: {
                 Authorization: `Token ${token}`,
                 "Content-Type": "application/json"

@@ -9,7 +9,7 @@ const UserDetail = ({ token }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/users/${id}/`, {
+                const response = await fetch(`https://uyde.ru/api/users/${id}/`, {
                     headers: {
                         Authorization: `Token ${token}`,
                         "Content-Type": "application/json",

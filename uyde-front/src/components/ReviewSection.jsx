@@ -15,7 +15,7 @@ export default function ReviewSection({ token, postId, currentUserId, postOwnerI
         const headers = { "Content-Type": "application/json" };
         if (token) headers["Authorization"] = `Token ${token}`;
 
-        fetch(`http://localhost:8000/api/posts/${postId}/reviews/`, { headers })
+        fetch(`https://uyde.ru/api/posts/${postId}/reviews/`, { headers })
             .then(res => {
                 if (!res.ok) throw new Error("Ошибка загрузки отзывов");
                 return res.json();
@@ -35,7 +35,7 @@ export default function ReviewSection({ token, postId, currentUserId, postOwnerI
         setError('');
         setSuccess('');
 
-        const response = await fetch(`http://localhost:8000/api/posts/${postId}/reviews/`, {
+        const response = await fetch(`https://uyde.ru/api/posts/${postId}/reviews/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export default function ReviewSection({ token, postId, currentUserId, postOwnerI
     };
 
     const handleUpdate = async (reviewId) => {
-        const res = await fetch(`http://localhost:8000/api/posts/${postId}/reviews/${reviewId}/`, {
+        const res = await fetch(`https://uyde.ru/api/posts/${postId}/reviews/${reviewId}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export default function ReviewSection({ token, postId, currentUserId, postOwnerI
     const handleDelete = async (reviewId) => {
         if (!window.confirm("Удалить отзыв?")) return;
 
-        const res = await fetch(`http://localhost:8000/api/posts/${postId}/reviews/${reviewId}/`, {
+        const res = await fetch(`https://uyde.ru/api/posts/${postId}/reviews/${reviewId}/`, {
             method: 'DELETE',
             headers: { Authorization: `Token ${token}` },
         });

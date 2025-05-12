@@ -13,7 +13,7 @@ const PostDetail = ({ token, user }) => {
     const handleDelete = async () => {
         if (!window.confirm("Удалить объявление?")) return;
         try {
-            const response = await fetch(`http://localhost:8000/api/posts/${post.id}/`, {
+            const response = await fetch(`https://uyde.ru/api/posts/${post.id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Token ${token}` },
             });
@@ -33,7 +33,7 @@ const PostDetail = ({ token, user }) => {
         const headers = { "Content-Type": "application/json" };
         if (token) headers["Authorization"] = `Token ${token}`;
 
-        fetch(`http://localhost:8000/api/posts/${id}/`, { headers })
+        fetch(`https://uyde.ru/api/posts/${id}/`, { headers })
             .then((res) => {
                 if (!res.ok) throw new Error("Не удалось загрузить объявление");
                 return res.json();
@@ -41,7 +41,7 @@ const PostDetail = ({ token, user }) => {
             .then((data) => setPost(data))
             .catch((err) => setError(err.message));
 
-        fetch(`http://localhost:8000/api/posts/${id}/photos/`, {
+        fetch(`https://uyde.ru/api/posts/${id}/photos/`, {
             headers: {
                 "Content-Type": "application/json",
                 ...(token && { Authorization: `Token ${token}` })

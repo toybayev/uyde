@@ -12,12 +12,12 @@ export default function EditPost({ token }) {
   useEffect(() => {
     const headers = { Authorization: `Token ${token}` };
 
-    fetch(`http://localhost:8000/api/posts/${id}/`, { headers })
+    fetch(`https://uyde.ru/api/posts/${id}/`, { headers })
       .then(res => res.json())
       .then(setForm)
       .catch(() => setError("Ошибка загрузки поста"));
 
-    fetch(`http://localhost:8000/api/posts/${id}/photos/`, { headers })
+    fetch(`https://uyde.ru/api/posts/${id}/photos/`, { headers })
       .then(res => res.json())
       .then(setPhotos)
       .catch(() => setError("Ошибка загрузки фото"));
@@ -34,7 +34,7 @@ export default function EditPost({ token }) {
 
   const handleDeletePhoto = async (photoId) => {
     if (!window.confirm("Удалить это фото?")) return;
-    const res = await fetch(`http://localhost:8000/api/posts/${id}/photos/${photoId}/`, {
+    const res = await fetch(`https://uyde.ru/api/posts/${id}/photos/${photoId}/`, {
       method: "DELETE",
       headers: { Authorization: `Token ${token}` },
     });
@@ -45,7 +45,7 @@ export default function EditPost({ token }) {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:8000/api/posts/${id}/`, {
+      const res = await fetch(`https://uyde.ru/api/posts/${id}/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export default function EditPost({ token }) {
         formData.append("image", file);
         formData.append("post", id);
 
-        const upload = await fetch(`http://localhost:8000/api/posts/${id}/photos/`, {
+        const upload = await fetch(`https://uyde.ru/api/posts/${id}/photos/`, {
           method: "POST",
           headers: { Authorization: `Token ${token}` },
           body: formData,

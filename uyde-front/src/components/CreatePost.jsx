@@ -33,7 +33,7 @@ export default function CreatePost({ token }) {
         setMessage("");
 
         try {
-            const response = await fetch("http://localhost:8000/api/posts/", {
+            const response = await fetch("https://uyde.ru/api/posts/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -55,7 +55,7 @@ export default function CreatePost({ token }) {
                 formData.append("image", file);
                 formData.append("post", post.id);
 
-                const photoRes = await fetch(`http://localhost:8000/api/posts/${post.id}/photos/`, {
+                const photoRes = await fetch(`https://localhost:8000/api/posts/${post.id}/photos/`, {
                     method: "POST",
                     headers: {
                         Authorization: `Token ${token}`,
