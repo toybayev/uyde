@@ -5,7 +5,7 @@ from django.core.files.base import ContentFile
 from PIL import Image
 
 from django.contrib.auth import get_user_model
-from uyde.models import Post, Photo, Favorite, Review
+from .models import Post, Photo, Favorite, Review
 
 User = get_user_model()
 
